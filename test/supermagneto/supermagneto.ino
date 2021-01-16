@@ -26,9 +26,9 @@ void loop()
 {
 /* Read each sensor axis data and output to the serial port */
 Serial.print(HMC5803L_Read(X));
-Serial.print(" ");
+Serial.print("|");
 Serial.print(HMC5803L_Read(Y));
-Serial.print(" ");
+Serial.print("|");
 Serial.println(HMC5803L_Read(Z));
 /* Wait a little before reading again */
 delay(10);

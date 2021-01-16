@@ -1,9 +1,16 @@
 #include <Arduino.h>
+
+/* Start of Code */
+
+#include "FastLED.h"
 #include <Wire.h>
 
 #define NUM_LEDS 8 // Number of LEDs per Stick
 #define DATA_PIN_X 2 // Pin 2 connected to RGB X
 #define DATA_PIN_Y 3 // Pin 3 connected to RGB Y
+
+CRGB leds_X[NUM_LEDS];
+CRGB leds_Y[NUM_LEDS];
 
 /* The I2C address of the module */
 #define HMC5803L_Address 0x1E
@@ -17,6 +24,8 @@ void setup()
 {
 Serial.begin(9600); 
 Wire.begin();
+FastLED.addLeds<NEOPIXEL,DATA_PIN_X>(leds_X, NUM_LEDS);
+FastLED.addLeds<NEOPIXEL,DATA_PIN_Y>(leds_Y, NUM_LEDS);
 
 /* Initialise the module */ 
 Init_HMC5803L();
@@ -30,6 +39,26 @@ Serial.print(" ");
 Serial.print(HMC5803L_Read(Y));
 Serial.print(" ");
 Serial.println(HMC5803L_Read(Z));
+
+int xvalue = HMC5803L_Read(X);
+int numLedsToLight = map(xvalue, -280, 600, 0, NUM_LEDS);
+FastLED.clear();
+for(int led = 0; led < numLedsToLight; led++) { 
+if(led < 4)leds_X[led] = CRGB::Green;
+if(led >=4 & led < 7)leds_X[led] = CRGB::Orange;
+if(led >=7)leds_X[led] = CRGB::Red;
+}
+
+int yvalue = HMC5803L_Read(Y);
+int numLedsToLight_1 = map(yvalue, -330, 330, 0, NUM_LEDS);
+for(int led = 0; led < numLedsToLight_1; led++) { 
+if(led < 4)leds_Y[led] = CRGB::Green;
+if(led >=4 & led < 7)leds_Y[led] = CRGB::Orange;
+if(led >=7)leds_Y[led] = CRGB::Red;
+}
+FastLED.setBrightness(50);
+FastLED.show();
+
 /* Wait a little before reading again */
 delay(10);
 }
@@ -78,3 +107,11 @@ return Result;
 }
 
 /* End of Code */
+
+void setup() {
+  // put your setup code here, to run once:
+}
+
+void loop() {
+  // put your main code here, to run repeatedly:
+}
