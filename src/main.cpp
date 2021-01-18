@@ -9,6 +9,8 @@
 #define Y 7 //Data Output Y MSB Register
 #define Z 5 //Data Output Z MSB Register
 
+int xmin, xmax, ymin, ymax, zmin, zmax;
+
 /* This function will initialise the module and only needs to be run once
 after the module is first powered up or reset */
 void Init_HMC5803L(void)
@@ -24,7 +26,6 @@ Wire.write(0xA0);// In bits 101 00000
 Wire.endTransmission();
 }
 
-
 /* This function will read once from one of the 3 axis data registers
 and return the 16 bit signed result. */
 int HMC5803L_Read(byte Axis)
@@ -34,7 +35,7 @@ int Result;
 /* Initiate a single measurement */
 Wire.beginTransmission(HMC5803L_Address);
 Wire.write(0x02); // Mode Register
-Wire.write(0x00);
+Wire.write(0x00); // Single-measurement mode
 Wire.endTransmission();
 delay(6);
 
@@ -52,7 +53,66 @@ return Result;
 
 }
 
+int minmag(int Axisvalue)
+{
+    int axisvalue;
+    int axismin = 99999;
+    
+    for(int i=10, i>=0, i--)
+    {
+        axisvalue = HMC5803L_Read(Axisvalue);
 
+        if(axisvalue < axismin)
+            axismin = axisvalue;
+
+    }
+}
+
+int maxmag(int Axisvalue)
+{
+    int axisvalue;
+    axismax = -99999;
+    
+    for(int i=10, i>=0, i--)
+    {
+        axisvalue = HMC5803L_Read(Axisvalue);
+
+        if(axisvalue > axismax)
+            axismax = axisvalue;
+    }
+}
+
+void calibratemag(int X, int Y, int Z)
+{
+
+    // Valores máximos e minimos de cada eixo por amostragem - Calibration
+    // Deixar o sensor na posicao normalizada(defaut) durante esse periodo
+    
+    Serial.println("Gire o sensor no sentido negativo do eixo X, pronto? [s]");
+    char confirmation = Serial.read();
+    if(confirmation == 's') xmin = minmag(X);
+
+    Serial.println("Gire o sensor no sentido positivo do eixo X, pronto? [s]");
+    confirmation = Serial.read();
+    if(confirmation == 's') xmax = maxmag(X);
+    
+    Serial.println("Gire o sensor no sentido negativo do eixo Y, pronto? [s]");
+    confirmation = Serial.read();
+    if(confirmation == 's') ymin = minmag(Y);
+    
+    Serial.println("Gire o sensor no sentido positivo do eixo Y, pronto? [s]");
+    confirmation = Serial.read();
+    if(confirmation == 's') ymax = maxmag(Y);
+    
+    Serial.println("Gire o sensor no sentido negativo do eixo Z, pronto? [s]");
+    confirmation = Serial.read();
+    if(confirmation == 's') zmin = minmag(Z);
+
+    Serial.println("Gire o sensor no sentido positivo do eixo Z, pronto? [s]");
+    confirmation = Serial.read();
+    if(confirmation == 's') zmax = maxmag(Z);
+
+}
 void setup() 
 {
 Serial.begin(9600); 
@@ -60,6 +120,9 @@ Wire.begin();
 
 /* Initialise the module */ 
 Init_HMC5803L();
+
+calibratemag(X,Y,Z)
+
 }
 
 void loop() 
@@ -71,13 +134,15 @@ Serial.print(HMC5803L_Read(Y));
 Serial.print(" ");
 Serial.println(HMC5803L_Read(Z));
 /* Wait a little before reading again */
-Serial.print(" ");
+
 int xvalue = HMC5803L_Read(X);
-int xinclination = map(xvalue, -280, 600, 0, 100); //Escala de 0 a 100%
+int xinclination = map(xvalue, xmin, xmax, 0, 100); //Escala de 0 a 100% que determina a inclinacao
+Serial.print(" X inclination ");
 Serial.print(xinclination);
-Serial.print(" ");
+
 int yvalue = HMC5803L_Read(Y);
-int yinclination = map(yvalue, -330, 330, 0, 100); //Escala de 0 a 100%
+int yinclination = map(yvalue, ymin, ymax, 0, 100); //Escala de 0 a 100%
+Serial.print(" Y inclination: ");
 Serial.print(yinclination);
 
 delay(10);
