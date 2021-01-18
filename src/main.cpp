@@ -33,8 +33,8 @@ int Result;
 
 /* Initiate a single measurement */
 Wire.beginTransmission(HMC5803L_Address);
-Wire.write(0x02);
-Wire.write(0x01);
+Wire.write(0x02); // Mode Register
+Wire.write(0x00);
 Wire.endTransmission();
 delay(6);
 
