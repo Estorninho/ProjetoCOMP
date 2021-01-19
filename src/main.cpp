@@ -58,7 +58,7 @@ int minmag(int Axisvalue)
     int axisvalue;
     int axismin = 99999;
     
-    for(int i=10, i>=0, i--)
+    for(int i=10; i>=0; i--)
     {
         axisvalue = HMC5803L_Read(Axisvalue);
 
@@ -66,23 +66,27 @@ int minmag(int Axisvalue)
             axismin = axisvalue;
 
     }
+
+    return axismin;
 }
 
 int maxmag(int Axisvalue)
 {
     int axisvalue;
-    axismax = -99999;
+    int axismax = -99999;
     
-    for(int i=10, i>=0, i--)
+    for(int i=10; i>=0; i--)
     {
         axisvalue = HMC5803L_Read(Axisvalue);
 
         if(axisvalue > axismax)
             axismax = axisvalue;
     }
+
+    return axismax;
 }
 
-void calibratemag(int X, int Y, int Z)
+void calibratemag(int x, int y, int z)
 {
 
     // Valores máximos e minimos de cada eixo por amostragem - Calibration
@@ -113,6 +117,23 @@ void calibratemag(int X, int Y, int Z)
     if(confirmation == 's') zmax = maxmag(Z);
 
 }
+
+void calibratemag1(int x, int y, int z)
+{
+    // Valores máximos e minimos de cada eixo por amostragem - Calibration
+    // Deixar o sensor na posicao normalizada(defaut) durante esse periodo   
+    xmin = minmag(X);
+    xmax = maxmag(X);
+        
+    ymin = minmag(Y);   
+    ymax = maxmag(Y);
+        
+    zmin = minmag(Z);
+    zmax = maxmag(Z);
+}
+
+int xvalue, xinclination, yvalue, yinclination, zvalue;
+
 void setup() 
 {
 Serial.begin(9600); 
@@ -121,31 +142,40 @@ Wire.begin();
 /* Initialise the module */ 
 Init_HMC5803L();
 
-calibratemag(X,Y,Z)
+calibratemag1(X,Y,Z);
+//calibratemag(X,Y,Z);
+
+
 
 }
 
 void loop() 
 {
-/* Read each sensor axis data and output to the serial port */
+/* Read each sensor axis data and output to the serial port*/
 Serial.print(HMC5803L_Read(X));
 Serial.print(" ");
 Serial.print(HMC5803L_Read(Y));
 Serial.print(" ");
 Serial.println(HMC5803L_Read(Z));
-/* Wait a little before reading again */
 
-int xvalue = HMC5803L_Read(X);
-int xinclination = map(xvalue, xmin, xmax, 0, 100); //Escala de 0 a 100% que determina a inclinacao
-Serial.print(" X inclination ");
+
+/*
+xvalue = HMC5803L_Read(X);
+xinclination = map(xvalue, xmin, xmax, 0, 100); //Escala de 0 a 100% que determina a inclinacao
+Serial.print("X inclination:");
+Serial.print(xvalue);
+Serial.print(" ");
 Serial.print(xinclination);
 
-int yvalue = HMC5803L_Read(Y);
-int yinclination = map(yvalue, ymin, ymax, 0, 100); //Escala de 0 a 100%
-Serial.print(" Y inclination: ");
+yvalue = HMC5803L_Read(Y);
+yinclination = map(yvalue, ymin, ymax, 0, 100); //Escala de 0 a 100%
+Serial.print("Y inclination:");
+Serial.print(yvalue);
+Serial.print(" ");
 Serial.print(yinclination);
-
-delay(10);
+zvalue = HMC5803L_Read(Z);
+*/
+delay(100);
 }
 
 /* End of Code */
