@@ -86,6 +86,7 @@ int maxmag(int Axisvalue)
     return axismax;
 }
 
+//Make the calibration for the diferent positions that the axis can get
 void calibratemag(int x, int y, int z)
 {
 
@@ -118,6 +119,7 @@ void calibratemag(int x, int y, int z)
 
 }
 
+//Make the calibration for the static device
 void calibratemag1(int x, int y, int z)
 {
     // Valores máximos e minimos de cada eixo por amostragem - Calibration
@@ -142,8 +144,9 @@ Wire.begin();
 /* Initialise the module */ 
 Init_HMC5803L();
 
-calibratemag1(X,Y,Z);
-//calibratemag(X,Y,Z);
+//calibratemag1(X,Y,Z);
+
+calibratemag(X,Y,Z);
 
 
 
@@ -158,8 +161,6 @@ Serial.print(HMC5803L_Read(Y));
 Serial.print(" ");
 Serial.println(HMC5803L_Read(Z));
 
-
-/*
 xvalue = HMC5803L_Read(X);
 xinclination = map(xvalue, xmin, xmax, 0, 100); //Escala de 0 a 100% que determina a inclinacao
 Serial.print("X inclination:");
@@ -174,7 +175,7 @@ Serial.print(yvalue);
 Serial.print(" ");
 Serial.print(yinclination);
 zvalue = HMC5803L_Read(Z);
-*/
+
 delay(100);
 }
 
